@@ -46,13 +46,21 @@ export default function Home() {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [filter, setFilter] = useState<FilterType>("all");
 
-  const handleAddTask = (data: { title: string; description?: string }) => {
+  const handleAddTask = (data: { title: string; description?: string, subtasks?: { text: string }[] }) => {
+    const newSubtasks: Subtask[] = (data.subtasks || [])
+      .filter(sub => sub.text.trim() !== '')
+      .map((sub, index) => ({
+        id: `new-${Date.now()}-${index}`,
+        text: sub.text,
+        completed: false,
+      }));
+
     const newTask: Task = {
       id: Date.now().toString(),
       title: data.title,
       description: data.description || "",
       status: "pending",
-      subtasks: [],
+      subtasks: newSubtasks,
     };
     setTasks((prev) => [newTask, ...prev]);
   };

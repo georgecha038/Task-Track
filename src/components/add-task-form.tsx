@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
@@ -15,11 +15,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, X } from "lucide-react";
+import { Label } from "@/components/ui/label";
 
 const formSchema = z.object({
   title: z.string().min(1, { message: "Title is required." }).max(100),
   description: z.string().max(500).optional(),
+  subtasks: z.array(z.object({
+    text: z.string().min(1, { message: "Subtask cannot be empty." })
+  })).optional(),
 });
 
 type AddTaskFormValues = z.infer<typeof formSchema>;
@@ -34,7 +38,13 @@ export function AddTaskForm({ onAddTask }: AddTaskFormProps) {
     defaultValues: {
       title: "",
       description: "",
+      subtasks: [],
     },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "subtasks",
   });
 
   function onSubmit(data: AddTaskFormValues) {
@@ -83,6 +93,44 @@ export function AddTaskForm({ onAddTask }: AddTaskFormProps) {
                 </FormItem>
               )}
             />
+            
+            <div className="space-y-2">
+              <Label>Subtasks</Label>
+              <div className="space-y-4">
+                {fields.map((field, index) => (
+                  <FormField
+                    key={field.id}
+                    control={form.control}
+                    name={`subtasks.${index}.text`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <div className="flex items-center gap-2">
+                            <FormControl>
+                                <Input placeholder={`Subtask ${index + 1}`} {...field} />
+                            </FormControl>
+                            <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)} className="flex-shrink-0">
+                                <X className="h-4 w-4" />
+                                <span className="sr-only">Remove subtask</span>
+                            </Button>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                ))}
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="mt-2"
+                onClick={() => append({ text: "" })}
+              >
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Add Subtask
+              </Button>
+            </div>
+
             <Button type="submit" className="w-full sm:w-auto">
               Add Task
             </Button>
