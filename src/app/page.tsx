@@ -65,11 +65,16 @@ export default function Home() {
     setTasks((prev) => [newTask, ...prev]);
   };
 
-  const handleEditTask = (taskId: string, data: { title: string; description?: string }) => {
+  const handleEditTask = (taskId: string, data: { title: string; description?: string; subtasks: Subtask[] }) => {
     setTasks((prev) =>
       prev.map((task) =>
         task.id === taskId
-          ? { ...task, title: data.title, description: data.description || "" }
+          ? { 
+              ...task, 
+              title: data.title, 
+              description: data.description || "",
+              subtasks: data.subtasks,
+            }
           : task
       )
     );

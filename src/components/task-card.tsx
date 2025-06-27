@@ -1,6 +1,6 @@
 "use client";
 
-import type { Task, TaskStatus } from "@/types";
+import type { Task, TaskStatus, Subtask } from "@/types";
 import {
   Card,
   CardContent,
@@ -37,7 +37,7 @@ interface TaskCardProps {
   onStatusChange: (taskId: string, status: TaskStatus) => void;
   onSubtaskToggle: (taskId: string, subtaskId: string, completed: boolean) => void;
   onAddSubtasks: (taskId: string, subtasks: string[]) => void;
-  onEditTask: (taskId: string, data: { title: string; description?: string }) => void;
+  onEditTask: (taskId: string, data: { title: string; description?: string; subtasks: Subtask[] }) => void;
 }
 
 const statusConfig: Record<TaskStatus, { icon: React.ReactElement, label: string }> = {
