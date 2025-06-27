@@ -104,26 +104,6 @@ export default function Home() {
     );
   };
 
-  const handleAddSubtasks = (taskId: string, subtaskTexts: string[]) => {
-    setTasks((prev) =>
-      prev.map((task) => {
-        if (task.id === taskId) {
-          const newSubtasks: Subtask[] = subtaskTexts.map((text, index) => ({
-            id: `s-${taskId}-${Date.now()}-${index}`,
-            text,
-            completed: false,
-          }));
-          return {
-            ...task,
-            subtasks: [...task.subtasks, ...newSubtasks],
-          };
-        }
-        return task;
-      })
-    );
-
-  };
-
   const filteredTasks = tasks.filter((task) => {
     if (filter === "active") {
       return task.status === "in-progress";
@@ -143,7 +123,7 @@ export default function Home() {
                 <FileCheck2 className="h-8 w-8 text-primary"/>
                 <h1 className="text-4xl font-bold tracking-tight">TaskTrack</h1>
             </div>
-          <p className="mt-2 text-muted-foreground">A simple and intelligent way to manage your tasks.</p>
+          <p className="mt-2 text-muted-foreground">A simple way to manage your tasks.</p>
         </header>
 
         <section>
@@ -170,7 +150,6 @@ export default function Home() {
                         task={task}
                         onStatusChange={handleStatusChange}
                         onSubtaskToggle={handleSubtaskToggle}
-                        onAddSubtasks={handleAddSubtasks}
                         onEditTask={handleEditTask}
                         />
                     ))

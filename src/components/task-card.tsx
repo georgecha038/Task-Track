@@ -5,7 +5,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -19,7 +18,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
-import { AiSubtaskDialog } from "@/components/ai-subtask-dialog";
 import { EditTaskDialog } from "@/components/edit-task-dialog";
 import {
   Circle,
@@ -36,7 +34,6 @@ interface TaskCardProps {
   task: Task;
   onStatusChange: (taskId: string, status: TaskStatus) => void;
   onSubtaskToggle: (taskId: string, subtaskId: string, completed: boolean) => void;
-  onAddSubtasks: (taskId: string, subtasks: string[]) => void;
   onEditTask: (taskId: string, data: { title: string; description?: string; subtasks: Subtask[] }) => void;
 }
 
@@ -46,7 +43,7 @@ const statusConfig: Record<TaskStatus, { icon: React.ReactElement, label: string
     completed: { icon: <CheckCircle2 className="h-5 w-5 text-primary" />, label: "Completed" },
 };
 
-export function TaskCard({ task, onStatusChange, onSubtaskToggle, onAddSubtasks, onEditTask }: TaskCardProps) {
+export function TaskCard({ task, onStatusChange, onSubtaskToggle, onEditTask }: TaskCardProps) {
   const [subtasksVisible, setSubtasksVisible] = useState(true);
   const currentStatusConfig = statusConfig[task.status];
 
@@ -139,12 +136,6 @@ export function TaskCard({ task, onStatusChange, onSubtaskToggle, onAddSubtasks,
           </div>
         </CardContent>
       )}
-      <CardFooter className="pt-4">
-        <AiSubtaskDialog 
-          taskDescription={task.description || task.title} 
-          onAddSubtasks={(texts) => onAddSubtasks(task.id, texts)}
-        />
-      </CardFooter>
     </Card>
   );
 }
