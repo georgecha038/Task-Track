@@ -57,6 +57,16 @@ export default function Home() {
     setTasks((prev) => [newTask, ...prev]);
   };
 
+  const handleEditTask = (taskId: string, data: { title: string; description?: string }) => {
+    setTasks((prev) =>
+      prev.map((task) =>
+        task.id === taskId
+          ? { ...task, title: data.title, description: data.description || "" }
+          : task
+      )
+    );
+  };
+
   const handleStatusChange = (taskId: string, status: TaskStatus) => {
     setTasks((prev) =>
       prev.map((task) =>
@@ -148,6 +158,7 @@ export default function Home() {
                         onStatusChange={handleStatusChange}
                         onSubtaskToggle={handleSubtaskToggle}
                         onAddSubtasks={handleAddSubtasks}
+                        onEditTask={handleEditTask}
                         />
                     ))
                 ) : (

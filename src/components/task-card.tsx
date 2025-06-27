@@ -15,10 +15,12 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
 import { AiSubtaskDialog } from "@/components/ai-subtask-dialog";
+import { EditTaskDialog } from "@/components/edit-task-dialog";
 import {
   Circle,
   Clock,
@@ -35,6 +37,7 @@ interface TaskCardProps {
   onStatusChange: (taskId: string, status: TaskStatus) => void;
   onSubtaskToggle: (taskId: string, subtaskId: string, completed: boolean) => void;
   onAddSubtasks: (taskId: string, subtasks: string[]) => void;
+  onEditTask: (taskId: string, data: { title: string; description?: string }) => void;
 }
 
 const statusConfig: Record<TaskStatus, { icon: React.ReactElement, label: string }> = {
@@ -43,7 +46,7 @@ const statusConfig: Record<TaskStatus, { icon: React.ReactElement, label: string
     completed: { icon: <CheckCircle2 className="h-5 w-5 text-primary" />, label: "Completed" },
 };
 
-export function TaskCard({ task, onStatusChange, onSubtaskToggle, onAddSubtasks }: TaskCardProps) {
+export function TaskCard({ task, onStatusChange, onSubtaskToggle, onAddSubtasks, onEditTask }: TaskCardProps) {
   const [subtasksVisible, setSubtasksVisible] = useState(true);
   const currentStatusConfig = statusConfig[task.status];
 
@@ -72,6 +75,8 @@ export function TaskCard({ task, onStatusChange, onSubtaskToggle, onAddSubtasks 
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
+              <EditTaskDialog task={task} onEditTask={(data) => onEditTask(task.id, data)} />
+              <DropdownMenuSeparator />
               {task.status !== "in-progress" && (
                 <DropdownMenuItem onClick={() => onStatusChange(task.id, "in-progress")}>
                   <Clock className="mr-2 h-4 w-4" />
