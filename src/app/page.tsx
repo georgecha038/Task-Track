@@ -12,7 +12,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { FileCheck2, ListTodo, Hourglass } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { FileCheck2, ListTodo, Hourglass, PlusCircle } from "lucide-react";
 import { addTask, getTasks, updateTask, deleteTask } from "@/services/task-service";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -22,6 +30,7 @@ export default function Home() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [filter, setFilter] = useState<FilterType>("all");
   const [isLoading, setIsLoading] = useState(true);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
   useEffect(() => {
     async function fetchTasks() {
@@ -182,26 +191,46 @@ export default function Home() {
           <p className="mt-2 text-muted-foreground">A simple way to manage your tasks.</p>
         </header>
 
-        <section>
-          <AddTaskForm onAddTask={handleAddTask} />
-        </section>
-
         <section className="space-y-4">
-          <Tabs value={filter} onValueChange={(value) => setFilter(value as FilterType)} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 sm:w-auto sm:inline-flex">
-              <TabsTrigger value="all" className="flex-1 sm:flex-initial">
-                  <ListTodo className="mr-2 h-4 w-4" />
-                  All Tasks
-              </TabsTrigger>
-              <TabsTrigger value="active" className="flex-1 sm:flex-initial">
-                  <Hourglass className="mr-2 h-4 w-4" />
-                  Active
-              </TabsTrigger>
-            </TabsList>
-            <div className="mt-4">
-                {renderContent()}
-            </div>
-          </Tabs>
+          <div className="flex items-center justify-between">
+            <Tabs value={filter} onValueChange={(value) => setFilter(value as FilterType)}>
+              <TabsList className="grid w-full grid-cols-2 sm:w-auto sm:inline-flex">
+                <TabsTrigger value="all" className="flex-1 sm:flex-initial">
+                    <ListTodo className="mr-2 h-4 w-4" />
+                    All Tasks
+                </TabsTrigger>
+                <TabsTrigger value="active" className="flex-1 sm:flex-initial">
+                    <Hourglass className="mr-2 h-4 w-4" />
+                    Active
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+            
+            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Create Task
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-lg">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2 text-xl">
+                    <PlusCircle className="h-6 w-6" />
+                    Create New Task
+                  </DialogTitle>
+                </DialogHeader>
+                <AddTaskForm 
+                  onAddTask={handleAddTask}
+                  onFinished={() => setIsAddDialogOpen(false)} 
+                />
+              </DialogContent>
+            </Dialog>
+
+          </div>
+          <div className="mt-4">
+              {renderContent()}
+          </div>
         </section>
       </div>
     </main>
