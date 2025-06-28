@@ -20,11 +20,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { FileCheck2, ListTodo, Hourglass, PlusCircle } from "lucide-react";
+import { FileCheck2, ListTodo, Hourglass, PlusCircle, CheckCheck } from "lucide-react";
 import { addTask, getTasks, updateTask, deleteTask } from "@/services/task-service";
 import { Skeleton } from "@/components/ui/skeleton";
 
-type FilterType = "all" | "active";
+type FilterType = "all" | "active" | "completed";
 
 export default function Home() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -125,6 +125,9 @@ export default function Home() {
     if (filter === "active") {
       return task.status === "in-progress";
     }
+    if (filter === "completed") {
+      return task.status === "completed";
+    }
     return true;
   }).sort((a, b) => {
     if (a.status === 'completed' && b.status !== 'completed') return 1;
@@ -132,6 +135,17 @@ export default function Home() {
     return 0;
   });
   
+  const getEmptyStateMessage = () => {
+    switch (filter) {
+        case 'active':
+            return "You have no active tasks.";
+        case 'completed':
+            return "You haven't completed any tasks yet.";
+        default:
+            return "Add a new task to get started.";
+    }
+  };
+
   const renderContent = () => {
     if (isLoading) {
         return (
@@ -174,7 +188,7 @@ export default function Home() {
         <div className="text-center text-muted-foreground py-16">
             <p className="font-semibold">No tasks to show.</p>
             <p className="text-sm">
-                {filter === 'active' ? "You have no active tasks." : "Add a new task to get started."}
+                {getEmptyStateMessage()}
             </p>
         </div>
     );
@@ -194,7 +208,7 @@ export default function Home() {
         <section className="space-y-4">
           <div className="flex items-center justify-between">
             <Tabs value={filter} onValueChange={(value) => setFilter(value as FilterType)}>
-              <TabsList className="grid w-full grid-cols-2 sm:w-auto sm:inline-flex">
+              <TabsList className="grid w-full grid-cols-3 sm:w-auto sm:inline-flex">
                 <TabsTrigger value="all" className="flex-1 sm:flex-initial">
                     <ListTodo className="mr-2 h-4 w-4" />
                     All Tasks
@@ -202,6 +216,10 @@ export default function Home() {
                 <TabsTrigger value="active" className="flex-1 sm:flex-initial">
                     <Hourglass className="mr-2 h-4 w-4" />
                     Active
+                </TabsTrigger>
+                <TabsTrigger value="completed" className="flex-1 sm:flex-initial">
+                    <CheckCheck className="mr-2 h-4 w-4" />
+                    Completed
                 </TabsTrigger>
               </TabsList>
             </Tabs>
