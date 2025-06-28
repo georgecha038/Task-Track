@@ -128,11 +128,8 @@ export default function Home() {
     if (filter === "completed") {
       return task.status === "completed";
     }
-    return task.status !== "completed";
-  }).sort((a, b) => {
-    if (a.status === 'completed' && b.status !== 'completed') return 1;
-    if (a.status !== 'completed' && b.status === 'completed') return -1;
-    return 0;
+    // "all" filter now means "pending"
+    return task.status === "pending";
   });
   
   const getEmptyStateMessage = () => {
@@ -141,11 +138,11 @@ export default function Home() {
         return "You have no active tasks.";
       case 'completed':
         return "You haven't completed any tasks yet.";
-      default:
+      default: // for 'all' (pending)
         if (tasks.length === 0) {
           return "Add a new task to get started.";
         }
-        return "All tasks are completed. Great job!";
+        return "You have no pending tasks to show.";
     }
   };
 
