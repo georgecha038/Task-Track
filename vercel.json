@@ -1,6 +1,5 @@
 
 {
-  "builds": [{ "src": "next.config.ts", "use": "@vercel/next" }],
   "build": {
     "env": {
       "NEXT_PUBLIC_FIREBASE_API_KEY": "@next_public_firebase_api_key",
