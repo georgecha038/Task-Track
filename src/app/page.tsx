@@ -104,6 +104,10 @@ export default function Home() {
     );
   };
 
+  const handleDeleteTask = (taskId: string) => {
+    setTasks((prev) => prev.filter((task) => task.id !== taskId));
+  };
+
   const filteredTasks = tasks.filter((task) => {
     if (filter === "active") {
       return task.status === "in-progress";
@@ -146,11 +150,12 @@ export default function Home() {
                 {filteredTasks.length > 0 ? (
                     filteredTasks.map((task) => (
                         <TaskCard
-                        key={task.id}
-                        task={task}
-                        onStatusChange={handleStatusChange}
-                        onSubtaskToggle={handleSubtaskToggle}
-                        onEditTask={handleEditTask}
+                          key={task.id}
+                          task={task}
+                          onStatusChange={handleStatusChange}
+                          onSubtaskToggle={handleSubtaskToggle}
+                          onEditTask={handleEditTask}
+                          onDeleteTask={handleDeleteTask}
                         />
                     ))
                 ) : (

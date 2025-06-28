@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
@@ -17,6 +17,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Separator } from "@/components/ui/separator";
 import { EditTaskDialog } from "@/components/edit-task-dialog";
 import {
@@ -26,6 +37,7 @@ import {
   MoreVertical,
   ChevronRight,
   ChevronDown,
+  Trash2,
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -35,6 +47,7 @@ interface TaskCardProps {
   onStatusChange: (taskId: string, status: TaskStatus) => void;
   onSubtaskToggle: (taskId: string, subtaskId: string, completed: boolean) => void;
   onEditTask: (taskId: string, data: { title: string; description?: string; subtasks: Subtask[] }) => void;
+  onDeleteTask: (taskId: string) => void;
 }
 
 const statusConfig: Record<TaskStatus, { icon: React.ReactElement, label: string }> = {
@@ -43,7 +56,7 @@ const statusConfig: Record<TaskStatus, { icon: React.ReactElement, label: string
     completed: { icon: <CheckCircle2 className="h-5 w-5 text-primary" />, label: "Completed" },
 };
 
-export function TaskCard({ task, onStatusChange, onSubtaskToggle, onEditTask }: TaskCardProps) {
+export function TaskCard({ task, onStatusChange, onSubtaskToggle, onEditTask, onDeleteTask }: TaskCardProps) {
   const [subtasksVisible, setSubtasksVisible] = useState(true);
   const currentStatusConfig = statusConfig[task.status];
 
@@ -92,6 +105,36 @@ export function TaskCard({ task, onStatusChange, onSubtaskToggle, onEditTask }: 
                   Mark as Pending
                 </DropdownMenuItem>
               )}
+              <DropdownMenuSeparator />
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <DropdownMenuItem
+                    className="text-destructive focus:bg-destructive focus:text-destructive-foreground"
+                    onSelect={(e) => e.preventDefault()}
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete Task
+                  </DropdownMenuItem>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete this
+                      task.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      className={buttonVariants({ variant: "destructive" })}
+                      onClick={() => onDeleteTask(task.id)}
+                    >
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
