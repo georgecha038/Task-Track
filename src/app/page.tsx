@@ -1,10 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import type { Task, TaskStatus, Subtask } from "@/types";
+import type { Task, Subtask } from "@/types";
 import { AddTaskForm } from "@/components/add-task-form";
-import { TaskCard } from "@/components/task-card";
+import { TaskTableRow } from "@/components/task-table-row";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Table,
+  TableBody,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { FileCheck2, ListTodo, Hourglass } from "lucide-react";
 import { addTask, getTasks, updateTask, deleteTask } from "@/services/task-service";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -63,7 +70,7 @@ export default function Home() {
     }
   };
 
-  const handleStatusChange = async (taskId: string, status: TaskStatus) => {
+  const handleStatusChange = async (taskId: string, status: Task['status']) => {
     try {
         await updateTask(taskId, { status });
         setTasks((prev) =>
@@ -119,24 +126,40 @@ export default function Home() {
   const renderContent = () => {
     if (isLoading) {
         return (
-            <div className="space-y-4">
-                <Skeleton className="h-32 w-full" />
-                <Skeleton className="h-32 w-full" />
-                <Skeleton className="h-32 w-full" />
+            <div className="space-y-2">
+                <Skeleton className="h-14 w-full" />
+                <Skeleton className="h-14 w-full" />
+                <Skeleton className="h-14 w-full" />
             </div>
         );
     }
     if (filteredTasks.length > 0) {
-        return filteredTasks.map((task) => (
-            <TaskCard
-              key={task.id}
-              task={task}
-              onStatusChange={handleStatusChange}
-              onSubtaskToggle={handleSubtaskToggle}
-              onEditTask={handleEditTask}
-              onDeleteTask={handleDeleteTask}
-            />
-        ));
+        return (
+          <div className="rounded-lg border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[60px] text-center">Status</TableHead>
+                  <TableHead>Task</TableHead>
+                  <TableHead className="hidden w-[100px] text-center sm:table-cell">Subtasks</TableHead>
+                  <TableHead className="w-[60px] text-right"></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredTasks.map((task) => (
+                  <TaskTableRow
+                    key={task.id}
+                    task={task}
+                    onStatusChange={handleStatusChange}
+                    onSubtaskToggle={handleSubtaskToggle}
+                    onEditTask={handleEditTask}
+                    onDeleteTask={handleDeleteTask}
+                  />
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        );
     }
     return (
         <div className="text-center text-muted-foreground py-16">
@@ -175,7 +198,7 @@ export default function Home() {
                   Active
               </TabsTrigger>
             </TabsList>
-            <div className="mt-4 space-y-4">
+            <div className="mt-4">
                 {renderContent()}
             </div>
           </Tabs>
