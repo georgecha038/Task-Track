@@ -128,7 +128,7 @@ export default function Home() {
     if (filter === "completed") {
       return task.status === "completed";
     }
-    return true;
+    return task.status !== "completed";
   }).sort((a, b) => {
     if (a.status === 'completed' && b.status !== 'completed') return 1;
     if (a.status !== 'completed' && b.status === 'completed') return -1;
@@ -137,12 +137,15 @@ export default function Home() {
   
   const getEmptyStateMessage = () => {
     switch (filter) {
-        case 'active':
-            return "You have no active tasks.";
-        case 'completed':
-            return "You haven't completed any tasks yet.";
-        default:
-            return "Add a new task to get started.";
+      case 'active':
+        return "You have no active tasks.";
+      case 'completed':
+        return "You haven't completed any tasks yet.";
+      default:
+        if (tasks.length === 0) {
+          return "Add a new task to get started.";
+        }
+        return "All tasks are completed. Great job!";
     }
   };
 
@@ -211,7 +214,7 @@ export default function Home() {
               <TabsList className="grid w-full grid-cols-3 sm:w-auto sm:inline-flex">
                 <TabsTrigger value="all" className="flex-1 sm:flex-initial">
                     <ListTodo className="mr-2 h-4 w-4" />
-                    Task
+                    Tasks
                 </TabsTrigger>
                 <TabsTrigger value="active" className="flex-1 sm:flex-initial">
                     <Hourglass className="mr-2 h-4 w-4" />
