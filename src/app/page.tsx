@@ -211,7 +211,7 @@ export default function Home() {
               <TabsList className="grid w-full grid-cols-3 sm:w-auto sm:inline-flex">
                 <TabsTrigger value="all" className="flex-1 sm:flex-initial">
                     <ListTodo className="mr-2 h-4 w-4" />
-                    All Tasks
+                    Task
                 </TabsTrigger>
                 <TabsTrigger value="active" className="flex-1 sm:flex-initial">
                     <Hourglass className="mr-2 h-4 w-4" />
