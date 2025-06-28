@@ -139,7 +139,7 @@ export function TaskCard({ task, onStatusChange, onSubtaskToggle, onEditTask, on
           </DropdownMenu>
         </div>
       </CardHeader>
-      {(task.subtasks.length > 0) && (
+      {(task.subtasks && task.subtasks.length > 0) && (
         <CardContent>
           <Separator />
           <div className="pt-4 space-y-4">

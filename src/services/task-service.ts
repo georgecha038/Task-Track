@@ -15,7 +15,7 @@ const docToTask = (doc: any): Task => {
         title: data.title,
         description: data.description,
         status: data.status,
-        subtasks: data.subtasks,
+        subtasks: data.subtasks || [],
         // Convert timestamp to ISO string for serialization
         createdAt: data.createdAt?.toDate()?.toISOString() || new Date().toISOString(),
     };

@@ -78,7 +78,7 @@ export default function Home() {
 
   const handleSubtaskToggle = async (taskId: string, subtaskId: string, completed: boolean) => {
     const taskToUpdate = tasks.find(t => t.id === taskId);
-    if (!taskToUpdate) return;
+    if (!taskToUpdate || !taskToUpdate.subtasks) return;
     
     const newSubtasks = taskToUpdate.subtasks.map((sub) =>
         sub.id === subtaskId ? { ...sub, completed } : sub
