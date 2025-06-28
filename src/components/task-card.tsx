@@ -85,7 +85,7 @@ export function TaskCard({ task, onStatusChange, onSubtaskToggle, onEditTask, on
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <EditTaskDialog task={task} onEditTask={(data) => onEditTask(task.id, data)} />
+              <EditTaskDialog task={task} onEditTask={onEditTask} />
               <DropdownMenuSeparator />
               {task.status !== "in-progress" && (
                 <DropdownMenuItem onClick={() => onStatusChange(task.id, "in-progress")}>
