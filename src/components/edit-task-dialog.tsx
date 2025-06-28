@@ -27,7 +27,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { Pencil, PlusCircle, X } from "lucide-react";
+import { Pencil, PlusCircle, X, Loader2 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -45,11 +45,13 @@ type EditTaskFormValues = z.infer<typeof formSchema>;
 
 interface EditTaskDialogProps {
   task: Task;
-  onEditTask: (data: EditTaskFormValues) => void;
+  onEditTask: (taskId: string, data: EditTaskFormValues) => Promise<void>;
 }
 
 export function EditTaskDialog({ task, onEditTask }: EditTaskDialogProps) {
   const [open, setOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
   const form = useForm<EditTaskFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -75,8 +77,10 @@ export function EditTaskDialog({ task, onEditTask }: EditTaskDialogProps) {
     setOpen(isOpen);
   };
 
-  function onSubmit(data: EditTaskFormValues) {
-    onEditTask(data);
+  async function onSubmit(data: EditTaskFormValues) {
+    setIsSaving(true);
+    await onEditTask(task.id, data);
+    setIsSaving(false);
     setOpen(false);
   }
 
@@ -185,7 +189,10 @@ export function EditTaskDialog({ task, onEditTask }: EditTaskDialogProps) {
                   Cancel
                 </Button>
               </DialogClose>
-              <Button type="submit">Save Changes</Button>
+              <Button type="submit" disabled={isSaving}>
+                {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Save Changes
+              </Button>
             </DialogFooter>
           </form>
         </Form>

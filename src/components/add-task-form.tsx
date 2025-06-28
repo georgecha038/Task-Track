@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -15,7 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PlusCircle, X } from "lucide-react";
+import { PlusCircle, X, Loader2 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 
 const formSchema = z.object({
@@ -29,10 +30,12 @@ const formSchema = z.object({
 type AddTaskFormValues = z.infer<typeof formSchema>;
 
 interface AddTaskFormProps {
-  onAddTask: (data: AddTaskFormValues) => void;
+  onAddTask: (data: AddTaskFormValues) => Promise<void>;
 }
 
 export function AddTaskForm({ onAddTask }: AddTaskFormProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const form = useForm<AddTaskFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -47,9 +50,11 @@ export function AddTaskForm({ onAddTask }: AddTaskFormProps) {
     name: "subtasks",
   });
 
-  function onSubmit(data: AddTaskFormValues) {
-    onAddTask(data);
+  async function onSubmit(data: AddTaskFormValues) {
+    setIsSubmitting(true);
+    await onAddTask(data);
     form.reset();
+    setIsSubmitting(false);
   }
 
   return (
@@ -131,7 +136,8 @@ export function AddTaskForm({ onAddTask }: AddTaskFormProps) {
               </Button>
             </div>
 
-            <Button type="submit" className="w-full sm:w-auto">
+            <Button type="submit" className="w-full sm:w-auto" disabled={isSubmitting}>
+              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Add Task
             </Button>
           </form>

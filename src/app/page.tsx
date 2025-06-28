@@ -1,111 +1,108 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Task, TaskStatus, Subtask } from "@/types";
 import { AddTaskForm } from "@/components/add-task-form";
 import { TaskCard } from "@/components/task-card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileCheck2, ListTodo, Hourglass } from "lucide-react";
-
-const initialTasks: Task[] = [
-  {
-    id: "1",
-    title: "Launch new marketing campaign",
-    description: "Prepare and launch a multi-channel marketing campaign for the new Q3 product lineup.",
-    status: "in-progress",
-    subtasks: [
-      { id: "s1-1", text: "Finalize campaign copy", completed: true },
-      { id: "s1-2", text: "Design social media assets", completed: true },
-      { id: "s1-3", text: "Schedule email blasts", completed: false },
-      { id: "s1-4", text: "Setup analytics dashboard", completed: false },
-    ],
-  },
-  {
-    id: "2",
-    title: "Develop user authentication feature",
-    description: "Implement a secure user login and registration system using JWT.",
-    status: "pending",
-    subtasks: [],
-  },
-  {
-    id: "3",
-    title: "Refactor legacy codebase",
-    description: "Update the old component library to use the new design system and improve performance.",
-    status: "completed",
-    subtasks: [
-      { id: "s3-1", text: "Audit all existing components", completed: true },
-      { id: "s3-2", text: "Replace CSS modules with Tailwind", completed: true },
-      { id: "s3-3", text: "Write unit tests for new components", completed: true },
-    ],
-  },
-];
+import { addTask, getTasks, updateTask, deleteTask } from "@/services/task-service";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type FilterType = "all" | "active";
 
 export default function Home() {
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [filter, setFilter] = useState<FilterType>("all");
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleAddTask = (data: { title: string; description?: string, subtasks?: { text: string }[] }) => {
-    const newSubtasks: Subtask[] = (data.subtasks || [])
-      .filter(sub => sub.text.trim() !== '')
-      .map((sub, index) => ({
-        id: `new-${Date.now()}-${index}`,
-        text: sub.text,
-        completed: false,
-      }));
+  useEffect(() => {
+    async function fetchTasks() {
+      try {
+        const fetchedTasks = await getTasks();
+        setTasks(fetchedTasks);
+      } catch (error) {
+        console.error("Error fetching tasks:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchTasks();
+  }, []);
 
-    const newTask: Task = {
-      id: Date.now().toString(),
-      title: data.title,
-      description: data.description || "",
-      status: "pending",
-      subtasks: newSubtasks,
-    };
-    setTasks((prev) => [newTask, ...prev]);
+  const handleAddTask = async (data: { title: string; description?: string, subtasks?: { text: string }[] }) => {
+    try {
+        const newTask = await addTask(data);
+        setTasks((prev) => [newTask, ...prev]);
+    } catch (error) {
+        console.error("Error adding task:", error);
+    }
   };
 
-  const handleEditTask = (taskId: string, data: { title: string; description?: string; subtasks: Subtask[] }) => {
-    setTasks((prev) =>
-      prev.map((task) =>
-        task.id === taskId
-          ? { 
-              ...task, 
-              title: data.title, 
-              description: data.description || "",
-              subtasks: data.subtasks,
-            }
-          : task
-      )
+  const handleEditTask = async (taskId: string, data: { title: string; description?: string; subtasks: Subtask[] }) => {
+    try {
+        await updateTask(taskId, {
+            title: data.title,
+            description: data.description,
+            subtasks: data.subtasks
+        });
+        setTasks((prev) =>
+          prev.map((task) =>
+            task.id === taskId
+              ? { 
+                  ...task, 
+                  title: data.title, 
+                  description: data.description || "",
+                  subtasks: data.subtasks,
+                }
+              : task
+          )
+        );
+    } catch (error) {
+        console.error("Error editing task:", error);
+    }
+  };
+
+  const handleStatusChange = async (taskId: string, status: TaskStatus) => {
+    try {
+        await updateTask(taskId, { status });
+        setTasks((prev) =>
+          prev.map((task) =>
+            task.id === taskId ? { ...task, status } : task
+          )
+        );
+    } catch(error) {
+        console.error("Error updating status:", error);
+    }
+  };
+
+  const handleSubtaskToggle = async (taskId: string, subtaskId: string, completed: boolean) => {
+    const taskToUpdate = tasks.find(t => t.id === taskId);
+    if (!taskToUpdate) return;
+    
+    const newSubtasks = taskToUpdate.subtasks.map((sub) =>
+        sub.id === subtaskId ? { ...sub, completed } : sub
     );
+
+    try {
+        await updateTask(taskId, { subtasks: newSubtasks });
+        setTasks((prev) =>
+          prev.map((task) =>
+            task.id === taskId ? { ...task, subtasks: newSubtasks } : task
+          )
+        );
+    } catch(error) {
+        console.error("Error toggling subtask:", error);
+    }
   };
 
-  const handleStatusChange = (taskId: string, status: TaskStatus) => {
-    setTasks((prev) =>
-      prev.map((task) =>
-        task.id === taskId ? { ...task, status } : task
-      )
-    );
-  };
-
-  const handleSubtaskToggle = (taskId: string, subtaskId: string, completed: boolean) => {
-    setTasks((prev) =>
-      prev.map((task) => {
-        if (task.id === taskId) {
-          return {
-            ...task,
-            subtasks: task.subtasks.map((sub) =>
-              sub.id === subtaskId ? { ...sub, completed } : sub
-            ),
-          };
-        }
-        return task;
-      })
-    );
-  };
-
-  const handleDeleteTask = (taskId: string) => {
-    setTasks((prev) => prev.filter((task) => task.id !== taskId));
+  const handleDeleteTask = async (taskId: string) => {
+    try {
+        await deleteTask(taskId);
+        setTasks((prev) => prev.filter((task) => task.id !== taskId));
+    } catch (error) {
+        console.error("Error deleting task:", error);
+    }
   };
 
   const filteredTasks = tasks.filter((task) => {
@@ -118,6 +115,38 @@ export default function Home() {
     if (a.status !== 'completed' && b.status === 'completed') return -1;
     return 0;
   });
+  
+  const renderContent = () => {
+    if (isLoading) {
+        return (
+            <div className="space-y-4">
+                <Skeleton className="h-32 w-full" />
+                <Skeleton className="h-32 w-full" />
+                <Skeleton className="h-32 w-full" />
+            </div>
+        );
+    }
+    if (filteredTasks.length > 0) {
+        return filteredTasks.map((task) => (
+            <TaskCard
+              key={task.id}
+              task={task}
+              onStatusChange={handleStatusChange}
+              onSubtaskToggle={handleSubtaskToggle}
+              onEditTask={handleEditTask}
+              onDeleteTask={handleDeleteTask}
+            />
+        ));
+    }
+    return (
+        <div className="text-center text-muted-foreground py-16">
+            <p className="font-semibold">No tasks to show.</p>
+            <p className="text-sm">
+                {filter === 'active' ? "You have no active tasks." : "Add a new task to get started."}
+            </p>
+        </div>
+    );
+  }
 
   return (
     <main className="flex min-h-screen flex-col items-center bg-background p-4 sm:p-8">
@@ -147,25 +176,7 @@ export default function Home() {
               </TabsTrigger>
             </TabsList>
             <div className="mt-4 space-y-4">
-                {filteredTasks.length > 0 ? (
-                    filteredTasks.map((task) => (
-                        <TaskCard
-                          key={task.id}
-                          task={task}
-                          onStatusChange={handleStatusChange}
-                          onSubtaskToggle={handleSubtaskToggle}
-                          onEditTask={handleEditTask}
-                          onDeleteTask={handleDeleteTask}
-                        />
-                    ))
-                ) : (
-                    <div className="text-center text-muted-foreground py-16">
-                        <p className="font-semibold">No tasks to show.</p>
-                        <p className="text-sm">
-                            {filter === 'active' ? "You have no active tasks." : "Add a new task to get started."}
-                        </p>
-                    </div>
-                )}
+                {renderContent()}
             </div>
           </Tabs>
         </section>

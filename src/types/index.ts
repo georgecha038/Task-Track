@@ -12,4 +12,5 @@ export type Task = {
   description: string;
   status: TaskStatus;
   subtasks: Subtask[];
+  createdAt: any; // Can be Date, ISO string, or Firestore Timestamp
 };
