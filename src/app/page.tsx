@@ -20,7 +20,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { FileCheck2, ListTodo, Hourglass, PlusCircle, CheckCheck } from "lucide-react";
+import { FileCheck2, ListTodo, Clock, PlusCircle, CheckCircle2 } from "lucide-react";
 import { addTask, getTasks, updateTask, deleteTask } from "@/services/task-service";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -214,11 +214,11 @@ export default function Home() {
                     Tasks
                 </TabsTrigger>
                 <TabsTrigger value="active" className="flex-1 sm:flex-initial">
-                    <Hourglass className="mr-2 h-4 w-4" />
+                    <Clock className="mr-2 h-4 w-4" />
                     Active
                 </TabsTrigger>
                 <TabsTrigger value="completed" className="flex-1 sm:flex-initial">
-                    <CheckCheck className="mr-2 h-4 w-4" />
+                    <CheckCircle2 className="mr-2 h-4 w-4" />
                     Completed
                 </TabsTrigger>
               </TabsList>
