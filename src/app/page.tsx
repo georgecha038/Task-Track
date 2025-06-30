@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from "react";
 import type { Task, Subtask } from "@/types";
+import { useAuth } from "@/contexts/auth-context";
+import { AuthGuard } from "@/components/auth-guard";
+import { Header } from "@/components/header";
 import { AddTaskForm } from "@/components/add-task-form";
 import { TaskTableRow } from "@/components/task-table-row";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -20,13 +23,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { FileCheck2, ListTodo, Clock, PlusCircle, CheckCircle2 } from "lucide-react";
+import { ListTodo, Clock, PlusCircle, CheckCircle2 } from "lucide-react";
 import { addTask, getTasks, updateTask, deleteTask } from "@/services/task-service";
 import { Skeleton } from "@/components/ui/skeleton";
 
 type FilterType = "all" | "active" | "completed";
 
-export default function Home() {
+function TaskPageContent() {
+  const { user } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [filter, setFilter] = useState<FilterType>("all");
   const [isLoading, setIsLoading] = useState(true);
@@ -34,8 +38,10 @@ export default function Home() {
 
   useEffect(() => {
     async function fetchTasks() {
+      if (!user) return;
+      setIsLoading(true);
       try {
-        const fetchedTasks = await getTasks();
+        const fetchedTasks = await getTasks(user.uid);
         setTasks(fetchedTasks);
       } catch (error) {
         console.error("Error fetching tasks:", error);
@@ -44,11 +50,12 @@ export default function Home() {
       }
     }
     fetchTasks();
-  }, []);
+  }, [user]);
 
   const handleAddTask = async (data: { title: string; description?: string, subtasks?: { text: string }[] }) => {
+    if (!user) return;
     try {
-        const newTask = await addTask(data);
+        const newTask = await addTask({ ...data, userId: user.uid });
         setTasks((prev) => [newTask, ...prev]);
     } catch (error) {
         console.error("Error adding task:", error);
@@ -147,7 +154,7 @@ export default function Home() {
   };
 
   const renderContent = () => {
-    if (isLoading) {
+    if (isLoading && tasks.length === 0) {
         return (
             <div className="space-y-2">
                 <Skeleton className="h-14 w-full" />
@@ -197,14 +204,7 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center bg-background p-4 sm:p-8">
       <div className="w-full max-w-4xl space-y-8">
-        <header className="text-center">
-            <div className="inline-flex items-center gap-2 rounded-lg bg-card px-4 py-2 shadow-sm">
-                <FileCheck2 className="h-8 w-8 text-primary"/>
-                <h1 className="text-4xl font-bold tracking-tight">TaskTrack</h1>
-            </div>
-          <p className="mt-2 text-muted-foreground">A simple way to manage your tasks.</p>
-        </header>
-
+        <Header />
         <section className="space-y-4">
           <div className="flex items-center justify-between">
             <Tabs value={filter} onValueChange={(value) => setFilter(value as FilterType)}>
@@ -253,4 +253,12 @@ export default function Home() {
       </div>
     </main>
   );
+}
+
+export default function Home() {
+  return (
+    <AuthGuard>
+      <TaskPageContent />
+    </AuthGuard>
+  )
 }
