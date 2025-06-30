@@ -39,7 +39,11 @@ export default function LoginPage() {
       await signInWithEmailAndPassword(auth, values.email, values.password);
       router.push("/");
     } catch (error: any) {
-      setError("Failed to sign in. Please check your credentials.");
+      if (error.code === 'auth/configuration-not-found') {
+        setError("Firebase configuration is missing. Please check your environment variables.");
+      } else {
+        setError("Failed to sign in. Please check your email and password.");
+      }
       console.error(error);
     } finally {
       setIsSubmitting(false);

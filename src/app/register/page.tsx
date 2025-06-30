@@ -41,6 +41,8 @@ export default function RegisterPage() {
     } catch (error: any) {
       if (error.code === 'auth/email-already-in-use') {
         setError("This email address is already in use.");
+      } else if (error.code === 'auth/configuration-not-found') {
+        setError("Firebase configuration is missing. Please check your environment variables.");
       } else {
         setError("Failed to create an account. Please try again.");
       }
