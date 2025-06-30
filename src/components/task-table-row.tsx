@@ -76,14 +76,14 @@ export function TaskTableRow({ task, onStatusChange, onSubtaskToggle, onEditTask
                 ) : (
                     <div className="w-8 h-8 flex-shrink-0" />
                 )}
-                <div className="grid gap-0.5">
-                    <span className={cn("font-medium", task.status === 'completed' && 'line-through text-muted-foreground')}>
+                <div>
+                    <p className={cn("m-0 font-medium", task.status === 'completed' && 'line-through text-muted-foreground')}>
                         {task.title}
-                    </span>
+                    </p>
                     {task.description && (
-                        <span className={cn("text-sm text-muted-foreground", task.status === 'completed' && 'line-through')}>
+                        <p className={cn("m-0 text-sm text-muted-foreground", task.status === 'completed' && 'line-through')}>
                             {task.description}
-                        </span>
+                        </p>
                     )}
                 </div>
             </div>
