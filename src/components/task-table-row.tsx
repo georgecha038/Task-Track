@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { EditTaskDialog } from "@/components/edit-task-dialog";
 import {
-  Circle,
+  ListTodo,
   Clock,
   CheckCircle2,
   MoreVertical,
@@ -44,7 +44,7 @@ interface TaskTableRowProps {
 }
 
 const statusConfig: Record<TaskStatus, { icon: React.ReactElement, label: string }> = {
-    pending: { icon: <Circle className="h-5 w-5 text-muted-foreground" />, label: "Pending" },
+    pending: { icon: <ListTodo className="h-5 w-5 text-muted-foreground" />, label: "Pending" },
     "in-progress": { icon: <Clock className="h-5 w-5 text-primary" />, label: "In Progress" },
     completed: { icon: <CheckCircle2 className="h-5 w-5 text-primary" />, label: "Completed" },
 };
@@ -118,7 +118,7 @@ export function TaskTableRow({ task, onStatusChange, onSubtaskToggle, onEditTask
                 )}
                 {task.status !== "pending" && (
                     <DropdownMenuItem onClick={() => onStatusChange(task.id, "pending")}>
-                    <Circle className="mr-2 h-4 w-4" />
+                    <ListTodo className="mr-2 h-4 w-4" />
                     Mark as Pending
                     </DropdownMenuItem>
                 )}
